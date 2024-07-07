@@ -10,6 +10,9 @@ void FlipOverlay::onLoad()
 {
 	_globalCvarManager = cvarManager;
 	//cvarManager->log("Plugin loaded!");
+	LOG("Plugin loaded.");
+	startCheckForFlip();
+	//cvarManager->registerCvar("FlipOverlayEnabled", "0", "Enable Flip Overlay", true, true, 0, true, 1);
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");
@@ -43,6 +46,48 @@ void FlipOverlay::onLoad()
 	//gameWrapper->HookEvent("Function TAGame.Ball_TA.Explode", std::bind(&FlipOverlay::YourPluginMethod, this);
 }
 
+void FlipOverlay::startCheckForFlip() {
+	checkForFlip();
+	gameWrapper->SetTimeout([this](GameWrapper* gw) {
+		startCheckForFlip();
+		}, 0.0001f);
+}
+
+void FlipOverlay::checkForFlip() {
+	_globalCvarManager = cvarManager;
+
+	ServerWrapper server = gameWrapper->GetCurrentGameState();
+	if (!server) { return; }
+
+	CarWrapper car = gameWrapper->GetLocalCar();
+	if (!car) { return; }
+
+	unsigned long int flip = car.HasFlip();
+	if (flip != previousFlipState) {
+		if (flip == 1) {
+			LOG("Has Flip");
+			previousFlipState = flip;
+		} else{
+			LOG("No Flip");
+			previousFlipState = flip;
+		}
+	}
+}
+
+void FlipOverlay::RenderSettings() {
+	ImGui::TextUnformatted("Flip");
+}
+
+std::string FlipOverlay::GetPluginName() {
+	return "Flip Overlay";
+}
+
+void FlipOverlay::SetImGuiContext(uintptr_t ctx) {
+	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
+}
+
+
 void FlipOverlay::onUnload()
 {
+	LOG("Plugin unloaded.");
 }

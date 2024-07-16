@@ -8,41 +8,31 @@
 #include "version.h"
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
-
-class FlipOverlay: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
+class FlipOverlay : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
+    // Boilerplate
+    virtual void onLoad() override;
+    virtual void onUnload() override;
 
-	//std::shared_ptr<bool> enabled;
+    // Inherited via PluginSettingsWindow
+    virtual void RenderSettings() override;
+    virtual std::string GetPluginName() override;
+    virtual void SetImGuiContext(uintptr_t ctx) override;
 
-	//Boilerplate
-	virtual void onLoad();
-	virtual void onUnload();
-	void checkForFlip();
-	void startCheckForFlip();
-	// Inherited via PluginSettingsWindow
+    // Inherited via PluginWindow
+    virtual std::string GetMenuName() override;
+    virtual std::string GetMenuTitle() override;
+    virtual void Render() override;
+    virtual void RenderOverlay(CanvasWrapper canvas);
+    virtual bool ShouldBlockInput() override;
+    virtual bool IsActiveOverlay() override;
+    virtual void OnOpen() override;
+    virtual void OnClose() override;
 
-	virtual void RenderSettings() override;
-	virtual std::string GetPluginName() override;
-	virtual void SetImGuiContext(uintptr_t ctx) override;
-
-	// Inherited via PluginWindow
-
-	bool isWindowOpen_ = false;
-	bool isMinimized_ = false;
-	std::string menuTitle_ = "FlipOverlay";
-
-	virtual void Render() override;
-	virtual std::string GetMenuName() override { return "FlipOverlay"; };
-	virtual std::string GetMenuTitle() override { return "FlipOverlay"; };
-	//virtual void SetImGuiContext(uintptr_t ctx) override;
-	virtual bool ShouldBlockInput() override { return false; };
-	virtual bool IsActiveOverlay() override { return flipOverlayEnabled; };
-	virtual void OnOpen() override {};
-	virtual void OnClose() override {};
 private:
-	bool flipOverlayEnabled = false;
-	bool isCheckingForFlip = false;
-	unsigned long int previousFlipState = 0;
-	
+    bool flipOverlayEnabled = false;
+    bool isWindowOpen_ = false;
+    bool isMinimized_ = false;
+    std::string menuTitle_ = "FlipOverlay";
+    unsigned long int previousFlipState = 0;
 };
-
